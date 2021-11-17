@@ -3,8 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>AdonisTrack - Invocations</title>
-    <link rel="stylesheet" href="../../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
-    <script type="text/javascript" src="../../3rd-party/bootstrap/5.1.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
+    <script type="text/javascript" src="../3rd-party/bootstrap/5.1.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/jquery/3.6.0/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/adonis-track.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            console.log("ready!");
+            let adonisTrack = new AdonisTrack();
+            let invocations = adonisTrack.getInvocations();
+            console.log(invocations);
+        });
+    </script>
 </head>
 <body>
     <div class="container">
