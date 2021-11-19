@@ -45,14 +45,15 @@
 </head>
 <body>
     <div id="app" class="container">
-        <h1>/adonis-track/invocations</h1>
+        <h1>AdonisTrack</h1><span class="badge">v2</span>
+        <h2>/adonis-track/invocations</h2>
         <div class="row">
             <table class="table table-sm">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">method</th>
-                    <th scope="col">url</th>
+                    <th scope="col">uri</th>
                     <th scope="col">status</th>
                     <th scope="col">start</th>
                     <th scope="col">duration(ms)</th>
@@ -61,9 +62,18 @@
                 <tbody>
                 <tr v-for="(invocation, index) in invocations">
                     <td>{{ invocation.id }}</td>
-                    <td>{{ invocation.method }}</td>
-                    <td>{{ invocation.url }}</td>
-                    <td>{{ invocation.status }}</td>
+                    <td>
+                        <button v-if     ="invocation.method == 'GET'"    class="btn btn-get       btn-sm">{{ invocation.method }}</button>
+                        <button v-else-if="invocation.method == 'POST'"   class="btn btn-post      btn-sm">{{ invocation.method }}</button>
+                        <button v-else-if="invocation.method == 'PUT'"    class="btn btn-put       btn-sm">{{ invocation.method }}</button>
+                        <button v-else-if="invocation.method == 'PATCH'"  class="btn btn-patch     btn-sm">{{ invocation.method }}</button>
+                        <button v-else-if="invocation.method == 'DELETE'" class="btn btn-delete    btn-sm">{{ invocation.method }}</button>
+                        <button v-else                                    class="btn btn-secondary btn-sm">{{ invocation.method }}</button>
+                    </td>
+                    <td>{{ invocation.uri }}</td>
+                    <td>
+                        {{ invocation.status }}
+                    </td>
                     <td>{{ invocation.start | date-time }}</td>
                     <td>{{ invocation.duration }}</td>
                 </tr>

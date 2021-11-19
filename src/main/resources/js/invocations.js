@@ -23,7 +23,7 @@ var app = new Vue({
                     start: new Date(d['start']),
                     duration: d['duration'],
                     method: d['method'],
-                    url: d['requestURL'],
+                    uri: d['requestURI'],
                     status: d['status']
                 });
             }
