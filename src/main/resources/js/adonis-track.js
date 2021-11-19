@@ -1,14 +1,40 @@
 class AdonisTrack {
+
     getInvocations() {
+        let invocations = null;
         $.ajax({
-            url: "http://localhost:8080/adonis-track/invocations",
+            url: this.getApiRoot() + "/adonis-track/invocations",
             method: "GET",
             dataType: "json",
             async: false,
             success: function(data) {
-                return data;
+                invocations = data;
             }
         })
-        return null;
+
+        return invocations;
     }
+
+    getInvocation(id) {
+        let invocation = null;
+        $.ajax({
+            url: this.getApiRoot() + "/adonis-track/invocations/" + id,
+            method: "GET",
+            dataType: "json",
+            async: false,
+            success: function(data) {
+                invocation = data;
+            }
+        })
+
+        return invocation;
+    }
+
+    getApiRoot() {
+        let locations = window.location.href.split("/");
+        let apiRoot = locations[0] + "//" + locations[2];
+
+        return apiRoot;
+    }
+
 }
