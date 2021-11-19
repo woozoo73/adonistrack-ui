@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AdonisTrack - Invocations</title>
+    <link rel="stylesheet" href="../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../3rd-party/fontawesome/5.15.4/css/all.min.css">
+    <style >
+        .btn-get {
+            color: #fff;
+            background-color: #61affe;
+            border-color: #61affe;
+        }
+        .btn-post {
+            color: #fff;
+            background-color: #49cc90;
+            border-color: #49cc90;
+        }
+        .btn-put {
+            color: #fff;
+            background-color: #fca130;
+            border-color: #fca130;
+        }
+        .btn-patch {
+            color: #fff;
+            background-color: #50e3c2;
+            border-color: #50e3c2;
+        }
+        .btn-delete {
+            color: #fff;
+            background-color: #f93e3e;
+            border-color: #f93e3e;
+        }
+        .btn-warning {
+            color: #000000;
+            background-color: #ffde00;
+            border-color: #6c757d;
+        }
+    </style>
+    <script type="text/javascript" src="../3rd-party/bootstrap/5.1.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/vue-js/2.6.12/vue.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/adonis-track.js"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <h1>AdonisTrack</h1><span class="badge">v2</span>
+        <h2>/adonis-track/invocations/{{ invocation.id }}</h2>
+        <div class="bg-light">
+            {{ invocation }}
+        </div>
+        <div>
+            <pre>{{ json }}</pre>
+        </div>
+    </div>
+    <script src="../js/invocation.js"></script>
+</body>
+</html>
