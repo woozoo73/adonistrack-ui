@@ -42,18 +42,29 @@
     <script type="text/javascript" src="../3rd-party/vue-js/2.6.12/vue.js"></script>
     <script type="text/javascript" src="../js/global.js"></script>
     <script type="text/javascript" src="../js/adonis-track.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
 <body>
     <div id="app" class="container">
-        <h1>AdonisTrack</h1><span class="badge">v2</span>
+        <h1>AdonisTrack</h1>
         <h2>/adonis-track/invocations/{{ invocation.id }}</h2>
-        <div class="bg-light">
-            {{ invocation }}
-        </div>
+        <div class="mermaid">{{ mermaidSequence }}</div>
+        <p/>
         <div>
             <pre>{{ json }}</pre>
         </div>
     </div>
     <script src="../js/invocation.js"></script>
+    <script>
+        const config = {
+            startOnLoad: true,
+            sequence:{
+                useMaxWidth: false,
+                showSequenceNumbers: true
+            },
+            securityLevel: 'loose',
+        };
+        mermaid.initialize(config);
+    </script>
 </body>
 </html>
