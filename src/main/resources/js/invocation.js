@@ -26,10 +26,6 @@ var app = new Vue({
             text += this.line('participant Client');
             text += this.line('participant Handler');
 
-            console.log('=========================');
-            console.log(this.json['childInvocationList']);
-            console.log('=========================');
-
             const participants = this.getParticipants(json, []);
             if (participants) {
                 for (const participant of participants) {
@@ -42,9 +38,13 @@ var app = new Vue({
                 text += this.line('Client->>Handler: ' + requestMessage);
             }
 
-            let calls = this.getCalls('Handler', json['childInvocationList'][0], []);
+            let calls = [];
+            if (json['childInvocationList']) {
+                calls = this.getCalls('Handler', json['childInvocationList'][0], []);
+            }
 
             console.log("calls.length=" + calls.length);
+
             if (calls) {
                 for (const call of calls) {
                     if (call['type'] == 'c') {
@@ -207,8 +207,14 @@ var app = new Vue({
 
             let message = '';
             const status = event['status'];
+            const reasonPhrase = event['reasonPhrase'];
 
-            message += status;
+            if (status) {
+                message += status;
+            }
+            if (reasonPhrase) {
+                message += this.space(reasonPhrase);
+            }
 
             return message;
         },
