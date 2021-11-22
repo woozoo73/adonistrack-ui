@@ -445,22 +445,21 @@ var app = new Vue({
             this.clear();
             this.loading = true;
 
-            const data = new AdonisTrack().getInvocation(this.id);
-            console.log(data);
-
-            this.json = data;
-
-            this.mermaidSequence = this.makeMermaidSequence(data);
-            console.log(this.mermaidSequence);
-
-            this.invocations = this.makeInvocaitons(data);
-            console.log(this.invocations);
-
-            this.request = this.getRequest(data);
-            console.log(this.request);
-
-            this.response = this.getResponse(data);
-            console.log(this.response);
+            fetch("invocation-06.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    this.json = data;
+                    this.mermaidSequence = this.makeMermaidSequence(data);
+                    this.id = data['id'];
+                    this.request = this.getRequest(data);
+                    this.response = this.getResponse(data);
+                    this.invocations = this.makeInvocaitons(data);
+                    console.log("");
+                    console.log(this.mermaidSequence);
+                    console.log(this.invocations);
+                });
 
             this.loading = false;
         }

@@ -44,19 +44,20 @@
     <script type="text/javascript" src="../js/adonis-track.js"></script>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+        <a class="navbar-brand" href="invocations.html"><span class="h3">AdonisTrack</span></a>
+    </nav>
     <div id="app" class="container">
-        <h1>AdonisTrack</h1><span class="badge">v2</span>
-        <h2>/adonis-track/invocations</h2>
         <div class="row">
             <table class="table table-sm">
-                <thead>
+                <thead class="thead-light">
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col">method</th>
-                    <th scope="col">uri</th>
-                    <th scope="col">status</th>
-                    <th scope="col">start</th>
-                    <th scope="col">duration(ms)</th>
+                    <th scope="col">Method</th>
+                    <th scope="col">URI</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Start</th>
+                    <th scope="col">Duration(ms)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -65,12 +66,12 @@
                         <a v-bind:href="'invocation.html?id=' + invocation.id">{{ invocation.id }}</a>
                     </td>
                     <td>
-                        <button v-if     ="invocation.method == 'GET'"    class="btn btn-get       btn-sm">{{ invocation.method }}</button>
-                        <button v-else-if="invocation.method == 'POST'"   class="btn btn-post      btn-sm">{{ invocation.method }}</button>
-                        <button v-else-if="invocation.method == 'PUT'"    class="btn btn-put       btn-sm">{{ invocation.method }}</button>
-                        <button v-else-if="invocation.method == 'PATCH'"  class="btn btn-patch     btn-sm">{{ invocation.method }}</button>
-                        <button v-else-if="invocation.method == 'DELETE'" class="btn btn-delete    btn-sm">{{ invocation.method }}</button>
-                        <button v-else                                    class="btn btn-secondary btn-sm">{{ invocation.method }}</button>
+                        <span v-if     ="invocation.method == 'GET'"    class="btn btn-get       btn-sm">{{ invocation.method }}</span>
+                        <span v-else-if="invocation.method == 'POST'"   class="btn btn-post      btn-sm">{{ invocation.method }}</span>
+                        <span v-else-if="invocation.method == 'PUT'"    class="btn btn-put       btn-sm">{{ invocation.method }}</span>
+                        <span v-else-if="invocation.method == 'PATCH'"  class="btn btn-patch     btn-sm">{{ invocation.method }}</span>
+                        <span v-else-if="invocation.method == 'DELETE'" class="btn btn-delete    btn-sm">{{ invocation.method }}</span>
+                        <span v-else                                    class="btn btn-secondary btn-sm">{{ invocation.method }}</span>
                     </td>
                     <td>{{ invocation.uri }}</td>
                     <td>{{ invocation.status }}</td>

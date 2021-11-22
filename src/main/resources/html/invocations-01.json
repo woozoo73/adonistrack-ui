@@ -1,0 +1,42 @@
+[
+  {
+    "id": "f26cbc90-4c16-483b-b696-8ef4bc01741b",
+    "start": 1637481492831,
+    "duration": 65.5055,
+    "method": "DELETE",
+    "requestURI": "/sam/staffs/aaaa",
+    "status": 200
+  },
+  {
+    "id": "a0c96f6d-7330-4d47-af16-1e8e0b01582d",
+    "start": 1637481485292,
+    "duration": 5.6064,
+    "method": "PUT",
+    "requestURI": "/sam/staffs/aaaa",
+    "status": 400
+  },
+  {
+    "id": "00efc038-b174-400a-bb25-90445eb5c002",
+    "start": 1637481466768,
+    "duration": 231.9669,
+    "method": "POST",
+    "requestURI": "/sam/staffs",
+    "status": 200
+  },
+  {
+    "id": "e388351a-652a-44bd-a0f1-b373c5ba5a10",
+    "start": 1637481443051,
+    "duration": 46.0367,
+    "method": "GET",
+    "requestURI": "/sam/staffs/admin1",
+    "status": 500
+  },
+  {
+    "id": "659ce9e4-05ec-44c7-8974-83756483c11a",
+    "start": 1637481441328,
+    "duration": 59.8886,
+    "method": "GET",
+    "requestURI": "/sam/staffs/admin",
+    "status": 200
+  }
+]
