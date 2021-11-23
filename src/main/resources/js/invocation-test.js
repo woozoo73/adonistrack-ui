@@ -100,11 +100,27 @@ var app = new Vue({
             return '    ';
         },
         afterDot: function(v) {
+            if (!v) {
+                return v;
+            }
             const index = v.lastIndexOf('.');
             if (index <= 0 && index > v.length - 1) {
                 return v;
             }
             return v.substr(index + 1);
+        },
+        beforeDollar: function(v) {
+            if (!v) {
+                return v;
+            }
+            const index = v.indexOf('$');
+            if (index <= 0) {
+                return v;
+            }
+            return v.substr(0, index);
+        },
+        targetClassSimpleName: function(v) {
+            return this.afterDot(this.beforeDollar(v));
         },
         getParticipants: function(invocation, participants) {
             console.log('----getParticipants');
@@ -328,9 +344,9 @@ var app = new Vue({
         getReturnMessage: function(invocation) {
             const returnValueInfo = this.getReturnValueInfo(invocation);
             if (returnValueInfo) {
-                const message = returnValueInfo['toStringValue'];
+                const message = returnValueInfo['declaringType'];
                 if (message) {
-                    return message;
+                    return this.targetClassSimpleName(message);
                 }
             }
 
