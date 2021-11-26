@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AdonisTrack - Mermaid</title>
+    <link rel="stylesheet" href="../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../3rd-party/fontawesome/5.15.4/css/all.min.css">
+    <script type="text/javascript" src="../3rd-party/bootstrap/5.1.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/jquery/3.6.0/jquery.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/vue-js/2.6.12/vue.js"></script>
+    <script type="text/javascript" src="../js/global.js"></script>
+    <script type="text/javascript" src="../js/adonis-track.js"></script>
+    <script type="text/javascript" src="../3rd-party/mermaid/mermaid.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3">
+    <a class="navbar-brand" href="invocations.html"><span class="h3">AdonisTrack</span></a>
+</nav>
+
+<div id="app" class="container">
+    <div class="row">
+        <div class="mermaid">
+            sequenceDiagram
+                participant StaffController
+                participant StaffService
+                participant StaffRepository
+
+                note over StaffController: TX-0 begin
+
+                StaffController->>StaffService: createStaff
+                StaffService->>StaffRepository: saveAndFlush
+
+                note over StaffRepository: insert into staff ~
+                note over StaffRepository: select ~ from staff ~
+                note over StaffRepository: update staff ~
+                note over StaffRepository: delete staff ~
+
+                StaffRepository-->>StaffService: StaffEntity
+
+                StaffService-->>StaffController: StaffId
+
+                note over StaffController: TX-0 commit
+        </div>
+    </div>
+</div>
+
+<script>
+    const config = {
+        startOnLoad: true,
+        theme: 'forest',
+        sequence:{
+            useMaxWidth: false,
+            showSequenceNumbers: true
+        },
+        securityLevel: 'loose',
+    };
+    mermaid.initialize(config);
+</script>
+
+</body>
+</html>

@@ -30,7 +30,7 @@ var app = new Vue({
             text += this.line('sequenceDiagram');
             text += this.line();
 
-            text += this.tab() + this.line('actor Client');
+            text += this.tab() + this.line('participant Client');
             text += this.tab() + this.line('participant Handler');
 
             const participants = this.getParticipants(json, []);

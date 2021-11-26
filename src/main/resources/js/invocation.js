@@ -15,6 +15,11 @@ var app = new Vue({
         this.id = params.get('id');
         this.getInvocation();
     },
+    computed: {
+        sequences: function() {
+            return this.invocations.filter(invocation => (invocation['type'] === 'Call' || invocation['type'] === 'Return'));
+        }
+    },
     methods: {
         clear: function () {
             this.invocation = {};
@@ -49,10 +54,13 @@ var app = new Vue({
             if (calls) {
                 for (const call of calls) {
                     if (call['type'] == 'Call') {
-                        text += this.tab() + this.line(call['from'] + '->>+' + call['to'] + ': ' + call['message']);
+                        text += this.tab() + this.line(call['from'] + '->>' + call['to'] + ': ' + call['message']);
                     }
                     if (call['type'] == 'Return') {
-                        text += this.tab() + this.line(call['from'] + '-->>-' + call['to'] + ': ' + call['message']);
+                        text += this.tab() + this.line(call['from'] + '-->>' + call['to'] + ': ' + call['message']);
+                    }
+                    if (call['type'] == 'Event') {
+                        text += this.tab() + this.line('note over ' + call['from'] + ':' + call['message']);
                     }
                 }
             }
@@ -161,11 +169,55 @@ var app = new Vue({
                 calls.push(call);
             }
 
+            let childStart = null;
+            let childEnd = null;
+
             const childInvocationList = this.getChildInvocationList(invocation);
+
+            if (childInvocationList) {
+                childStart = this.getStart(childInvocationList[0]);
+                childEnd = this.getEnd(childInvocationList[childInvocationList.length - 1]);
+            }
+
+            const eventList = this.getEventList(invocation);
+
+            console.log(eventList);
+
+            const eventCalls = [];
+            let lastMessage = null;
+            if (eventList) {
+                for (const event of eventList) {
+                    const eventCall = this.getEventCall(invocation, event);
+                    const message = eventCall['message'];
+                    if (lastMessage == null || lastMessage != message) {
+                        if (message) {
+                            eventCalls.push(eventCall);
+                        }
+                    }
+                    lastMessage = message;
+                }
+            }
+
+            console.log(eventCalls);
+
+            for (eventCall of eventCalls) {
+                const s = eventCall['start'];
+                if (!childStart || (s && s <= childStart)) {
+                    calls.push(eventCall);
+                }
+            }
+
             if (childInvocationList) {
                 const parent = this.getParticipant(invocation);
                 for (const childInvocation of childInvocationList) {
                     this.getCalls(parent, childInvocation, calls);
+                }
+            }
+
+            for (eventCall of eventCalls) {
+                const s = eventCall['start'];
+                if (childStart && (s && s >= childEnd)) {
+                    calls.push(eventCall);
                 }
             }
 
@@ -183,6 +235,8 @@ var app = new Vue({
             const method = this.getCallMethod(invocation);
             const valueType = this.getCallValueType(invocation);
             const value = this.getCallValue(invocation);
+            const start = this.getStart(invocation);
+            const end = this.getStart(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getCallMessage(invocation);
 
@@ -193,6 +247,8 @@ var app = new Vue({
                 method: method,
                 valueType: valueType,
                 value: value,
+                start: start,
+                end: end,
                 duration: duration,
                 message: message
             };
@@ -203,8 +259,18 @@ var app = new Vue({
             const method = this.getCallMethod(invocation);
             const valueType = this.getReturnValueType(invocation);
             const value = this.getReturnValue(invocation);
+
+            // error
+            const throwableType = this.getThrowableType(invocation);
+            const throwable = this.getThrowable(invocation);
+
+            const start = this.getStart(invocation);
+            const end = this.getStart(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getReturnMessage(invocation);
+
+            console.log('throwableType=' + throwableType);
+            console.log('message=' + message);
 
             return {
                 type: 'Return',
@@ -213,6 +279,37 @@ var app = new Vue({
                 method: method,
                 valueType: valueType,
                 value: value,
+
+                // error
+                throwableType: throwableType,
+                throwable: throwable,
+
+                start: start,
+                end: end,
+                duration: duration,
+                message: message
+            };
+        },
+        getEventCall: function(invocation, event) {
+            const from = this.getParticipant(invocation);
+            const to = this.getParticipant(invocation);
+            const method = null;
+            const valueType = event['type'];
+            const value = null;
+            const start = this.getEventStart(event);
+            const end = null;
+            const duration = null;
+            const message = this.getEventMessage(event);
+
+            return {
+                type: 'Event',
+                from: from,
+                to: to,
+                method: method,
+                valueType: valueType,
+                value: value,
+                start: start,
+                end: end,
                 duration: duration,
                 message: message
             };
@@ -330,6 +427,22 @@ var app = new Vue({
 
             return returnValueInfo['toStringValue'];
         },
+        getThrowableType: function(invocation) {
+            const throwableInfo = this.getThrowableInfo(invocation);
+            if (!throwableInfo) {
+                return null;
+            }
+
+            return throwableInfo['declaringType'];
+        },
+        getThrowable: function(invocation) {
+            const throwableInfo = this.getThrowableInfo(invocation);
+            if (!throwableInfo) {
+                return null;
+            }
+
+            return throwableInfo['toStringValue'];
+        },
         getCallMessage: function(invocation) {
             const signatureInfo = this.getSignatureInfo(invocation);
             if (signatureInfo) {
@@ -341,16 +454,27 @@ var app = new Vue({
 
             return "[Unknown]";
         },
-        getReturnMessage: function(invocation) {
-            const returnValueInfo = this.getReturnValueInfo(invocation);
-            if (returnValueInfo) {
-                const message = returnValueInfo['declaringType'];
-                if (message) {
-                    return this.targetClassSimpleName(message);
-                }
+        getEventMessage: function(event) {
+            const type = event['type'];
+            const value = event['value'];
+            if (!type || !value) {
+                return null;
             }
 
-            return "[Unknown]";
+            return value['message'];
+        },
+        getReturnMessage: function(invocation) {
+            const throwableType = this.getThrowableType(invocation);
+            if (throwableType) {
+                return this.targetClassSimpleName(throwableType);
+            }
+
+            const returnValueType = this.getReturnValueType(invocation);
+            if (returnValueType) {
+                return this.targetClassSimpleName(returnValueType);
+            }
+
+            return null;
         },
         getRequestMessage: function(invocation) {
             const event = this.getRequest(invocation);
@@ -451,8 +575,30 @@ var app = new Vue({
 
             return invocation['returnValueInfo'];
         },
+        getThrowableInfo: function(invocation) {
+            console.log('----getThrowableInfo');
+
+            return invocation['throwableInfo'];
+        },
         getEventList: function(invocation) {
             return invocation['eventList'];
+        },
+        getStart: function(invocation) {
+            return invocation['start'];
+        },
+        getEventStart: function(event) {
+            const eventValue = this.getEventValue(event);
+            if (!eventValue) {
+                return null;
+            }
+
+            return eventValue['start'];
+        },
+        getEventValue: function(event) {
+            return event['value'];
+        },
+        getEnd: function(invocation) {
+            return invocation['end'];
         },
         getDuration: function(invocation) {
             return invocation['duration'];
