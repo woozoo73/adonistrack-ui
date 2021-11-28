@@ -72,16 +72,19 @@
 
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <button class="nav-link active" id="web-tab"      data-bs-toggle="tab" data-bs-target="#web-info"        type="button" role="tab" aria-controls="web"     >Request / Response</button>
+            <button class="nav-link active" id="web-tab"          data-bs-toggle="tab" data-bs-target="#web-info"          type="button" role="tab" aria-controls="web"         >Request / Response</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link"        id="sequence-tab" data-bs-toggle="tab" data-bs-target="#sequence-info"   type="button" role="tab" aria-controls="sequence">Sequence(Detail)</button>
+            <button class="nav-link"        id="sequence-tab"     data-bs-toggle="tab" data-bs-target="#sequence-info"     type="button" role="tab" aria-controls="sequence"    >Sequence(Detail)</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link"        id="json-tab"     data-bs-toggle="tab" data-bs-target="#invocation-info" type="button" role="tab" aria-controls="invocation">Invocation(JSON)</button>
+            <button class="nav-link"        id="participants-tab" data-bs-toggle="tab" data-bs-target="#participants-info" type="button" role="tab" aria-controls="participants">Participants</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link"        id="mermaid-tab"  data-bs-toggle="tab" data-bs-target="#mermaid-info"    type="button" role="tab" aria-controls="mermaid" >Mermaid(Markup)</button>
+            <button class="nav-link"        id="json-tab"         data-bs-toggle="tab" data-bs-target="#invocation-info"   type="button" role="tab" aria-controls="invocation"  >Invocation(JSON)</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link"        id="mermaid-tab"      data-bs-toggle="tab" data-bs-target="#mermaid-info"      type="button" role="tab" aria-controls="mermaid"     >Mermaid(Markup)</button>
         </li>
     </ul>
 
@@ -109,12 +112,10 @@
                         <td class="col-9">{{ request.queryString }}</td>
                     </tr>
                     <tr>
-                        <th class="thead-light col-3">Headers</th>
-                        <td class="col-9">{{ request.headers }}</td>
-                    </tr>
-                    <tr>
-                        <th class="thead-light col-3">Payload</th>
-                        <td class="col-9">{{ request.payload }}</td>
+                        <th class="thead-light col-3" v-bind:rowspan="request.headers.length + 1">Headers</th>
+                        <tr v-for="(header, index) in request.headers">
+                            <td>{{ header.name }}: {{ header.value }}</td>
+                        </tr>
                     </tr>
                     </tbody>
                 </table>
@@ -132,12 +133,11 @@
                         <td class="col-9">{{ response.status }} {{ response.reasonPhrase }}</td>
                     </tr>
                     <tr>
-                        <th class="thead-light col-3">Headers</th>
-                        <td class="col-9">{{ response.headers }}</td>
+                        <th class="thead-light col-3" v-bind:rowspan="response.headers.length + 1">Headers</th>
                     </tr>
-                    <tr>
-                        <th class="thead-light col-3">Payload</th>
-                        <td class="col-9">{{ response.payload }}</td>
+                    <tr v-for="(header, index) in response.headers">
+                        <td>{{ header.name }}: {{ header.value }}</td>
+                    </tr>
                     </tr>
                     </tbody>
                 </table>
@@ -164,17 +164,29 @@
                     </thead>
                     <tbody>
                     <tr v-for="(invocation, index) in sequences">
-                        <td class="">{{ index + 1 }}</td>
+                        <td>{{ index + 1 }}</td>
                         <td>{{ invocation.type }}</td>
 
-                        <td class="">{{ invocation.from }}</td>
-                        <td class="">{{ invocation.to }}</td>
+                        <td>{{ invocation.from }}</td>
+                        <td>{{ invocation.to }}</td>
 
-                        <td class="">{{ invocation.method }}</td>
-                        <td class="">{{ invocation.valueType }}</td>
-                        <td class="">{{ invocation.value }}</td>
+                        <td>{{ invocation.method }}</td>
+                        <td>{{ invocation.valueType }}</td>
+                        <td>{{ invocation.value }}</td>
 
-                        <td class="">{{ invocation.duration }}</td>
+                        <td>{{ invocation.duration }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="participants-info">
+            <div class="row">
+                <table class="table">
+                    <tbody>
+                    <tr v-for="(participant, index) in participants">
+                        <td>{{ participant }}</td>
                     </tr>
                     </tbody>
                 </table>

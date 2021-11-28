@@ -5,6 +5,13 @@
     <title>AdonisTrack - Mermaid</title>
     <link rel="stylesheet" href="../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../3rd-party/fontawesome/5.15.4/css/all.min.css">
+    <style>
+        .cssClass > rect{
+            fill:#FF0000;
+            stroke:#FFFF00;
+            stroke-width:4px;
+        }
+    </style>
     <script type="text/javascript" src="../3rd-party/bootstrap/5.1.2/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../3rd-party/jquery/3.6.0/jquery.min.js"></script>
     <script type="text/javascript" src="../3rd-party/vue-js/2.6.12/vue.js"></script>
@@ -25,12 +32,13 @@
                 participant StaffService
                 participant StaffRepository
 
+                links StaffController: {"Google": "https://www.google.com", "GitHub": "https://www.github.com"}
+
                 note over StaffController: TX-0 begin
 
                 StaffController->>StaffService: createStaff
                 StaffService->>StaffRepository: saveAndFlush
 
-                note over StaffRepository: insert into staff ~
                 note over StaffRepository: select ~ from staff ~
                 note over StaffRepository: update staff ~
                 note over StaffRepository: delete staff ~
@@ -40,6 +48,9 @@
                 StaffService-->>StaffController: StaffId
 
                 note over StaffController: TX-0 commit
+
+                %% style StaffController fill:#ed6,stroke:#333,stroke-width:2px;
+                %% click StaffController "Tooltip"
         </div>
     </div>
 </div>

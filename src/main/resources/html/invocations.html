@@ -57,7 +57,7 @@
                     <th scope="col">URI</th>
                     <th scope="col">Status</th>
                     <th scope="col">Start</th>
-                    <th scope="col">Duration(ms)</th>
+                    <th scope="col" class="text-end">Duration(ms)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -74,9 +74,10 @@
                         <span v-else                                    class="btn btn-secondary btn-sm">{{ invocation.method }}</span>
                     </td>
                     <td>{{ invocation.uri }}</td>
-                    <td>{{ invocation.status }}</td>
+                    <td v-if="invocation.status >= 200 && invocation.status < 300" class="text-success">{{ invocation.status }}</td>
+                    <td v-else class="text-danger">{{ invocation.status }}</td>
                     <td>{{ invocation.start | date-time }}</td>
-                    <td>{{ invocation.duration }}</td>
+                    <td class="text-end">{{ invocation.duration }}</td>
                 </tr>
                 </tbody>
             </table>

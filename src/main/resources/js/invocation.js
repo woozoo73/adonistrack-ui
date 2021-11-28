@@ -8,6 +8,7 @@ var app = new Vue({
         request: {},
         response: {},
         invocations: [],
+        participants: [],
         loading: false
     },
     mounted: function () {
@@ -325,12 +326,16 @@ var app = new Vue({
             let message = '';
             const method = event['method'];
             const requestURI = event['requestURI'];
+            const queryString = event['queryString'];
 
             if (method) {
                 message += method;
             }
             if (requestURI) {
                 message += this.space(requestURI);
+            }
+            if (queryString) {
+                message += '?' + queryString;
             }
 
             return {
@@ -623,6 +628,9 @@ var app = new Vue({
 
             this.response = this.getResponse(data);
             console.log(this.response);
+
+            this.participants = this.getParticipants(data, []);
+            console.log(this.participants);
 
             this.loading = false;
         }
