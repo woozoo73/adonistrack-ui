@@ -170,40 +170,12 @@ var app = new Vue({
                 calls.push(call);
             }
 
-            let childStart = null;
-            let childEnd = null;
-
             const childInvocationList = this.getChildInvocationList(invocation);
 
-            if (childInvocationList) {
-                childStart = this.getStart(childInvocationList[0]);
-                childEnd = this.getEnd(childInvocationList[childInvocationList.length - 1]);
-            }
-
             const eventList = this.getEventList(invocation);
-
-            console.log(eventList);
-
-            const eventCalls = [];
-            let lastMessage = null;
             if (eventList) {
                 for (const event of eventList) {
                     const eventCall = this.getEventCall(invocation, event);
-                    const message = eventCall['message'];
-                    if (lastMessage == null || lastMessage != message) {
-                        if (message) {
-                            eventCalls.push(eventCall);
-                        }
-                    }
-                    lastMessage = message;
-                }
-            }
-
-            console.log(eventCalls);
-
-            for (eventCall of eventCalls) {
-                const s = eventCall['start'];
-                if (!childStart || (s && s <= childStart)) {
                     calls.push(eventCall);
                 }
             }
@@ -215,19 +187,29 @@ var app = new Vue({
                 }
             }
 
-            for (eventCall of eventCalls) {
-                const s = eventCall['start'];
-                if (childStart && (s && s >= childEnd)) {
-                    calls.push(eventCall);
-                }
-            }
-
             const rtn = this.getReturn(parent, invocation);
             if (rtn) {
                 calls.push(rtn);
             }
 
+            calls.sort(function(c0, c1) {
+                const t0 = c0['type'];
+                const t1 = c1['type'];
+
+                let s0 = c0['start'];
+                if (t0 == 'Return') {
+                    s0 = c0['end'];
+                }
+                let s1 = c1['start'];
+                if (t1 == 'Return') {
+                    s1 = c1['end'];
+                }
+
+                return s0 - s1;
+            });
+
             console.log(calls);
+
             return calls;
         },
         getCall: function(parent, invocation) {
@@ -237,7 +219,7 @@ var app = new Vue({
             const valueType = this.getCallValueType(invocation);
             const value = this.getCallValue(invocation);
             const start = this.getStart(invocation);
-            const end = this.getStart(invocation);
+            const end = this.getEnd(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getCallMessage(invocation);
 
@@ -266,7 +248,7 @@ var app = new Vue({
             const throwable = this.getThrowable(invocation);
 
             const start = this.getStart(invocation);
-            const end = this.getStart(invocation);
+            const end = this.getEnd(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getReturnMessage(invocation);
 
@@ -591,6 +573,9 @@ var app = new Vue({
         getStart: function(invocation) {
             return invocation['start'];
         },
+        getEnd: function(invocation) {
+            return invocation['end'];
+        },
         getEventStart: function(event) {
             const eventValue = this.getEventValue(event);
             if (!eventValue) {
@@ -601,9 +586,6 @@ var app = new Vue({
         },
         getEventValue: function(event) {
             return event['value'];
-        },
-        getEnd: function(invocation) {
-            return invocation['end'];
         },
         getDuration: function(invocation) {
             return invocation['duration'];

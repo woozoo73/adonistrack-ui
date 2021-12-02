@@ -111,7 +111,7 @@
                         <th class="thead-light col-3">Query string</th>
                         <td class="col-9">{{ request.queryString }}</td>
                     </tr>
-                    <tr>
+                    <tr v-if="request.headers">
                         <th class="thead-light col-3" v-bind:rowspan="request.headers.length + 1">Headers</th>
                         <tr v-for="(header, index) in request.headers">
                             <td>{{ header.name }}: {{ header.value }}</td>
@@ -132,12 +132,11 @@
                         <th class="thead-light col-3">Status</th>
                         <td class="col-9">{{ response.status }} {{ response.reasonPhrase }}</td>
                     </tr>
-                    <tr>
+                    <tr v-if="response.headers">
                         <th class="thead-light col-3" v-bind:rowspan="response.headers.length + 1">Headers</th>
-                    </tr>
-                    <tr v-for="(header, index) in response.headers">
-                        <td>{{ header.name }}: {{ header.value }}</td>
-                    </tr>
+                        <tr v-for="(header, index) in response.headers">
+                            <td>{{ header.name }}: {{ header.value }}</td>
+                        </tr>
                     </tr>
                     </tbody>
                 </table>
