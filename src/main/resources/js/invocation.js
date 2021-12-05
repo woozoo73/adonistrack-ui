@@ -9,16 +9,22 @@ var app = new Vue({
         response: {},
         invocations: [],
         participants: [],
-        loading: false
+        mermaidTheme: '',
+        linkBaseUrl: ''
     },
     mounted: function () {
         let params = new URLSearchParams(window.location.search);
         this.id = params.get('id');
+        this.mermaidTheme = this.getMermaidTheme();
+        this.linkBaseUrl = this.getLinkBaseUrl();
         this.getInvocation();
     },
     computed: {
         sequences: function() {
             return this.invocations.filter(invocation => (invocation['type'] === 'Call' || invocation['type'] === 'Return'));
+        },
+        events: function() {
+            return this.invocations.filter(invocation => invocation['type'] === 'Event');
         }
     },
     methods: {
@@ -117,6 +123,12 @@ var app = new Vue({
                 return v;
             }
             return v.substr(index + 1);
+        },
+        dotToSlash: function(v) {
+            if (!v) {
+                return v;
+            }
+            return v.replace(/\./g, '/');
         },
         beforeDollar: function(v) {
             if (!v) {
@@ -283,6 +295,7 @@ var app = new Vue({
             const end = null;
             const duration = null;
             const message = this.getEventMessage(event);
+            const eventValue = this.getEventValue(event);
 
             return {
                 type: 'Event',
@@ -294,7 +307,8 @@ var app = new Vue({
                 start: start,
                 end: end,
                 duration: duration,
-                message: message
+                message: message,
+                eventValue: eventValue
             };
         },
         getRequestCall: function(event) {
@@ -615,6 +629,79 @@ var app = new Vue({
             console.log(this.participants);
 
             this.loading = false;
+        },
+        getSessionStorage: function() {
+            const sessionStorage = window.sessionStorage;
+            return sessionStorage;
+        },
+        getMermaidTheme: function() {
+            const sessionStorage = this.getSessionStorage()
+            const mermaidTheme = sessionStorage.getItem('mermaidTheme');
+            if (mermaidTheme) {
+                return mermaidTheme;
+            }
+            return 'forest';
+        },
+        getLinkBaseUrl: function() {
+            const sessionStorage = this.getSessionStorage();
+            const linkBaseUrl = sessionStorage.getItem('linkBaseUrl');
+            if (linkBaseUrl) {
+                return linkBaseUrl;
+            }
+            return 'http://localhost:63342/api/file/src/main/java/';
+        },
+        getLinkType: function() {
+            const sessionStorage = this.getSessionStorage();
+            const linkType = sessionStorage.getItem('linkType');
+            if (linkType) {
+                return linkType;
+            }
+            return 'IntelliJ';
+        },
+        linkToSource: function(participantAlias) {
+            let participant = null;
+            for (const p of this.participants) {
+                if (participantAlias == this.afterDot(p)) {
+                    participant = p;
+                    break;
+                }
+            }
+            if (!participant) {
+                return;
+            }
+            const fqn = this.dotToSlash(participant);
+            if (!fqn) {
+                return;
+            }
+            if (!this.getLinkBaseUrl()) {
+                return;
+            }
+            if (!this.getLinkType()) {
+                return;
+            }
+
+            if (this.getLinkType() == 'IntelliJ') {
+                $.ajax({
+                    url: this.getLinkBaseUrl() + fqn + '.java',
+                    method: "GET",
+                    async: false,
+                    success: function(data) {
+                        console.log(data);
+                        return true;
+                    },
+                    error: function(error) {
+                        console.log(error);
+                        return false;
+                    },
+                    complete: function() {
+                        console.log('complete');
+                    }
+                })
+            } else {
+                window.open(this.getLinkBaseUrl() + fqn + '.java', '_blank');
+            }
+
+            return false;
         }
     }
 });

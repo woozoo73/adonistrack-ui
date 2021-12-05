@@ -31,8 +31,8 @@ class AdonisTrack {
     }
 
     getApiRoot() {
-        let locations = window.location.href.split("/");
-        let apiRoot = locations[0] + "//" + locations[2];
+        const locations = window.location.href.split("/");
+        const apiRoot = locations[0] + "//" + locations[2];
 
         return apiRoot;
     }
