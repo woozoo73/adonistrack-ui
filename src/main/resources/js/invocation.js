@@ -8,7 +8,7 @@ var app = new Vue({
         request: {},
         response: {},
         invocations: [],
-        participants: [],
+        participants: new Set(),
         mermaidTheme: '',
         linkBaseUrl: ''
     },
@@ -35,6 +35,9 @@ var app = new Vue({
             this.request = {};
             this.response = {};
             this.invocations = [];
+            this.participants = new Set();
+            this.mermaidTheme = '';
+            this.linkBaseUrl = '';
         },
         makeMermaidSequence: function(json) {
             let text = '';
@@ -45,7 +48,7 @@ var app = new Vue({
             text += this.tab() + this.line('actor Client');
             text += this.tab() + this.line('participant Handler');
 
-            const participants = this.getParticipants(json, []);
+            const participants = this.getParticipants(json, new Set());
             if (participants) {
                 for (const participant of participants) {
                     text += this.tab() + this.line('participant ' + participant + ' as ' + this.afterDot(participant));
@@ -148,7 +151,7 @@ var app = new Vue({
 
             const participant = this.getParticipant(invocation);
             if (participant) {
-                participants.push(this.getParticipant(invocation));
+                participants.add(this.getParticipant(invocation));
             }
 
             const childInvocationList = this.getChildInvocationList(invocation);
@@ -169,8 +172,11 @@ var app = new Vue({
                 return null;
             }
 
-            const declaringType = target['declaringType'];
-            const proxyTarget = target['proxyTarget'];
+            const declaringType = target['declaringTypeString'];
+            const proxyTarget = target['proxyTargetString'];
+
+            console.log(declaringType);
+            console.log(proxyTarget);
 
             return proxyTarget ? proxyTarget : declaringType;
         },
@@ -394,7 +400,7 @@ var app = new Vue({
 
             const v = [];
             for (const arg of argsInfoInfo) {
-                v.push(arg['declaringType']);
+                v.push(arg['declaringTypeString']);
             }
 
             return v;
@@ -418,7 +424,7 @@ var app = new Vue({
                 return null;
             }
 
-            return returnValueInfo['declaringType'];
+            return returnValueInfo['declaringTypeString'];
         },
         getReturnValue: function(invocation) {
             const returnValueInfo = this.getReturnValueInfo(invocation);
@@ -434,7 +440,7 @@ var app = new Vue({
                 return null;
             }
 
-            return throwableInfo['declaringType'];
+            return throwableInfo['declaringTypeString'];
         },
         getThrowable: function(invocation) {
             const throwableInfo = this.getThrowableInfo(invocation);
@@ -625,7 +631,7 @@ var app = new Vue({
             this.response = this.getResponse(data);
             console.log(this.response);
 
-            this.participants = this.getParticipants(data, []);
+            this.participants = this.getParticipants(data, new Set());
             console.log(this.participants);
 
             this.loading = false;
