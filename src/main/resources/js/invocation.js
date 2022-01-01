@@ -178,7 +178,13 @@ var app = new Vue({
             console.log(declaringType);
             console.log(proxyTarget);
 
-            return proxyTarget ? proxyTarget : declaringType;
+            let participant = proxyTarget ? proxyTarget : declaringType;
+            if (!participant) {
+                const signatureInfo = this.getSignatureInfo(invocation);
+                participant = signatureInfo['declaringType'];
+            }
+
+            return participant;
         },
         getCalls: function(parent, invocation, calls) {
             console.log('----getCalls');

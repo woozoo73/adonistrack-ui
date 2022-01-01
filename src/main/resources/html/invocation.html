@@ -5,6 +5,7 @@
     <title>AdonisTrack - Invocations</title>
     <link rel="stylesheet" href="../3rd-party/bootstrap/5.1.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="../3rd-party/fontawesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="../3rd-party/highlight/styles/github.min.css">
     <style >
         .highlight {
             background-color: #fff5ad;
@@ -17,12 +18,21 @@
     <script type="text/javascript" src="../js/global.js"></script>
     <script type="text/javascript" src="../js/adonis-track.js"></script>
     <script type="text/javascript" src="../3rd-party/mermaid/mermaid.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/highlight/highlight.js"></script>
+    <script type="text/javascript" src="../3rd-party/highlight/languages/sql.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/highlight/languages/javascript.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/sql-formatter/4.0.2/sql-formatter.min.js"></script>
+
     <script type="text/javascript">
+        let currentEvent = null;
+        let formatted = true;
+
         function oncreateSequenceDiagram() {
             makeParticipantLink();
             makeSequenceLink();
             makeEventLink();
         }
+
         function makeParticipantLink() {
             const participantAreas = d3.selectAll('text.actor>tspan')
                 .filter(function(d, i) {
@@ -40,6 +50,7 @@
                 d3.select(this).style('cursor', 'default');
             });
         }
+
         function makeSequenceLink() {
             const sequenceNumberAreas = d3.selectAll('text.sequenceNumber');
 
@@ -55,6 +66,7 @@
                 d3.select(this).style('cursor', 'default');
             });
         }
+
         function makeEventLink() {
             const eventAreas = d3.selectAll('text.noteText>tspan');
 
@@ -64,15 +76,77 @@
                 const elementId = 'event-' + (d + 1);
                 $('.event-row').removeClass('highlight');
                 $('#' + elementId).addClass('highlight');
+                showEventDetail(d);
             }).on('mouseover', function () {
                 d3.select(this).style('cursor', 'pointer');
             }).on('mouseout', function () {
                 d3.select(this).style('cursor', 'default');
             });
         }
+
+        function showEventDetail(index) {
+            currentEvent = app.events[index];
+
+            if (currentEvent.valueType != 'SQL') {
+                return;
+            }
+
+            formatSql();
+
+            const eventDetailModal = new bootstrap.Modal(document.getElementById("eventDetailModal"), {});
+            eventDetailModal.show();
+
+            hljs.highlightAll();
+        }
+
+        function formatSql() {
+            if (!currentEvent) {
+                return;
+            }
+            if (currentEvent.valueType != 'SQL') {
+                return;
+            }
+
+            const content = $('#eventDetailContent');
+            content.text(sqlFormatter.format(currentEvent.eventValue.sql));
+            formatted = true;
+
+            hljs.highlightAll();
+        }
+
+        function unformatSql() {
+            if (!currentEvent) {
+                return;
+            }
+            if (currentEvent.valueType != 'SQL') {
+                return;
+            }
+
+            const content = $('#eventDetailContent');
+            content.text(currentEvent.eventValue.sql);
+            formatted = false;
+
+            hljs.highlightAll();
+        }
+
+        function copyEventDetailToClipboard() {
+            if (!currentEvent) {
+                return;
+            }
+
+            const dummy = $('#clipboardContents');
+            if (formatted) {
+                dummy.text(sqlFormatter.format(currentEvent.eventValue.sql));
+            } else {
+                dummy.text(currentEvent.eventValue.sql);
+            }
+            dummy.show();
+            dummy.select();
+            document.execCommand("copy");
+            dummy.hide();
+        }
     </script>
 </head>
-<body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark p-3 justify-content-between">
     <div class="navbar-brand p-2">
         <a class="navbar-brand" href="invocations.html"><span class="h3">AdonisTrack</span></a>
@@ -81,6 +155,30 @@
         <a class="navbar-brand" href="config.html"><i class="fa fa-cog"></i></a>
     </div>
 </nav>
+<body>
+
+<!-- Modal -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailModalLabel">Event detail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <pre><code id="eventDetailContent" class="language-sql"></code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="copyEventDetailButton" type="button" class="btn btn-success" onclick="copyEventDetailToClipboard()">Copy</button>
+                <button id="formatSql" type="button" class="btn btn-primary" onclick="formatSql()">Format</button>
+                <button id="unformatSql" type="button" class="btn btn-primary" onclick="unformatSql()">Unformat</button>
+            </div>
+            <textarea id="clipboardContents" style="display: none"></textarea>
+        </div>
+    </div>
+</div>
+
 <div id="app" class="container">
     <div class="row">
         <div class="mermaid">{{ mermaidSequence }}</div>
@@ -178,7 +276,7 @@
             </div>
         </div>
 
-        <div class="tab-pane fade " id="sequence-info">
+        <div class="tab-pane fade" id="sequence-info">
             <div class="row">
                 <table class="table">
                     <thead class="thead-light">
@@ -233,7 +331,7 @@
                         <td>{{ event.valueType }}</td>
                         <td>{{ event.message }}</td>
                         <td v-if="event.valueType == 'SQL'">
-                            {{ event.eventValue.sql }}
+                            <pre>{{ event.eventValue.sql }}</pre>
                         </td>
                         <td v-else></td>
                         <td v-if="event.valueType == 'SQL'">
