@@ -21,7 +21,7 @@
     <script type="text/javascript" src="../3rd-party/highlight/highlight.js"></script>
     <script type="text/javascript" src="../3rd-party/highlight/languages/sql.min.js"></script>
     <script type="text/javascript" src="../3rd-party/highlight/languages/javascript.min.js"></script>
-    <script type="text/javascript" src="../3rd-party/sql-formatter/4.0.2/sql-formatter.min.js"></script>
+    <script type="text/javascript" src="../3rd-party/sql-formatter/3.1.0/sql-formatter.min.js"></script>
 
     <script type="text/javascript">
         let currentEvent = null;
@@ -94,6 +94,8 @@
             formatSql();
 
             const eventDetailModal = new bootstrap.Modal(document.getElementById("eventDetailModal"), {});
+            const title = $('#eventDetailTitle');
+            title.text(currentEvent.valueType);
             eventDetailModal.show();
 
             hljs.highlightAll();
@@ -158,11 +160,11 @@
 <body>
 
 <!-- Modal -->
-<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailModalLabel" aria-hidden="true">
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailTitle" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="eventDetailModalLabel">Event detail</h5>
+                <h5 class="modal-title" id="eventDetailTitle"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

@@ -220,13 +220,19 @@ var app = new Vue({
                 const t0 = c0['type'];
                 const t1 = c1['type'];
 
+                let seq0 = c0['seq'];
                 let s0 = c0['start'];
                 if (t0 == 'Return') {
                     s0 = c0['end'];
                 }
+                let seq1 = c1['seq'];
                 let s1 = c1['start'];
                 if (t1 == 'Return') {
                     s1 = c1['end'];
+                }
+
+                if (seq0 && seq1 && seq0 != seq1) {
+                    return seq0 - seq1;
                 }
 
                 return s0 - s1;
@@ -244,6 +250,7 @@ var app = new Vue({
             const value = this.getCallValue(invocation);
             const start = this.getStart(invocation);
             const end = this.getEnd(invocation);
+            const seq = this.getStartSeq(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getCallMessage(invocation);
 
@@ -256,6 +263,7 @@ var app = new Vue({
                 value: value,
                 start: start,
                 end: end,
+                seq: seq,
                 duration: duration,
                 message: message
             };
@@ -273,6 +281,7 @@ var app = new Vue({
 
             const start = this.getStart(invocation);
             const end = this.getEnd(invocation);
+            const seq = this.getEndSeq(invocation);
             const duration = this.getDuration(invocation);
             const message = this.getReturnMessage(invocation);
 
@@ -293,6 +302,7 @@ var app = new Vue({
 
                 start: start,
                 end: end,
+                seq: seq,
                 duration: duration,
                 message: message
             };
@@ -305,6 +315,7 @@ var app = new Vue({
             const value = null;
             const start = this.getEventStart(event);
             const end = null;
+            const seq = this.getEventSeq(event);
             const duration = null;
             const message = this.getEventMessage(event);
             const eventValue = this.getEventValue(event);
@@ -318,6 +329,7 @@ var app = new Vue({
                 value: value,
                 start: start,
                 end: end,
+                seq: seq,
                 duration: duration,
                 message: message,
                 eventValue: eventValue
@@ -602,6 +614,12 @@ var app = new Vue({
         getEnd: function(invocation) {
             return invocation['end'];
         },
+        getStartSeq: function(invocation) {
+            return invocation['startSeq'];
+        },
+        getEndSeq: function(invocation) {
+            return invocation['endSeq'];
+        },
         getEventStart: function(event) {
             const eventValue = this.getEventValue(event);
             if (!eventValue) {
@@ -609,6 +627,13 @@ var app = new Vue({
             }
 
             return eventValue['start'];
+        },
+        getEventSeq: function(event) {
+            if (!event) {
+                return null;
+            }
+
+            return event['seq'];
         },
         getEventValue: function(event) {
             return event['value'];
