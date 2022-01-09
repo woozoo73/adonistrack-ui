@@ -1,4 +1,4 @@
-var app = new Vue({
+const app = new Vue({
     el: '#app',
     data: {
         id: '',
@@ -10,7 +10,9 @@ var app = new Vue({
         invocations: [],
         participants: new Set(),
         mermaidTheme: '',
-        linkBaseUrl: ''
+        linkBaseUrl: '',
+        currentCallInvocation: {},
+        currentReturnInvocation: {}
     },
     mounted: function () {
         let params = new URLSearchParams(window.location.search);
@@ -243,6 +245,7 @@ var app = new Vue({
             return calls;
         },
         getCall: function(parent, invocation) {
+            const id = this.getId(invocation);
             const from = parent;
             const to = this.getParticipant(invocation);
             const method = this.getCallMethod(invocation);
@@ -256,6 +259,7 @@ var app = new Vue({
 
             return {
                 type: 'Call',
+                id: id,
                 from: from,
                 to: to,
                 method: method,
@@ -269,6 +273,7 @@ var app = new Vue({
             };
         },
         getReturn: function(parent, invocation) {
+            const id = this.getId(invocation);
             const from = this.getParticipant(invocation);
             const to = parent;
             const method = this.getCallMethod(invocation);
@@ -290,6 +295,7 @@ var app = new Vue({
 
             return {
                 type: 'Return',
+                id: id,
                 from: from,
                 to: to,
                 method: method,
@@ -347,24 +353,27 @@ var app = new Vue({
             const method = event['method'];
             const requestURI = event['requestURI'];
             const queryString = event['queryString'];
+            let value = '';
 
             if (method) {
                 message += method;
             }
             if (requestURI) {
                 message += this.space(requestURI);
+                value += requestURI;
             }
             if (queryString) {
-                message += '?' + queryString;
+                value += '?' + queryString;
             }
 
             return {
                 type: 'Call',
+                id: 'Request / Response',
                 from: from,
                 to: to,
                 method: method,
                 valueType: '',
-                value: requestURI,
+                value: value,
                 duration: null,
                 message: message
             };
@@ -390,6 +399,7 @@ var app = new Vue({
 
             return {
                 type: 'Return',
+                id: 'Request / Response',
                 from: from,
                 to: to,
                 method: '',
@@ -608,6 +618,9 @@ var app = new Vue({
         getEventList: function(invocation) {
             return invocation['eventList'];
         },
+        getId: function(invocation) {
+            return invocation['id'];
+        },
         getStart: function(invocation) {
             return invocation['start'];
         },
@@ -695,6 +708,28 @@ var app = new Vue({
             }
             return 'IntelliJ';
         },
+        getInvocationByIdAndType: function(id, type) {
+            if (!id || !type) {
+                return null;
+            }
+
+            for (const invocation of this.invocations) {
+                if (id == invocation['id'] && type == invocation['type']) {
+                    return invocation;
+                }
+            }
+
+            return null;
+        },
+        setCurrentInvocationsBySequenceIndex: function(index) {
+            const currentSequence = this.sequences[index];
+            if (!currentSequence) {
+                return;
+            }
+
+            this.currentCallInvocation = this.getInvocationByIdAndType(currentSequence['id'], 'Call');
+            this.currentReturnInvocation = this.getInvocationByIdAndType(currentSequence['id'], 'Return');
+        },
         linkToSource: function(participantAlias) {
             let participant = null;
             for (const p of this.participants) {
@@ -706,10 +741,13 @@ var app = new Vue({
             if (!participant) {
                 return;
             }
-            const fqn = this.dotToSlash(participant);
+            this.linkToSourceByFqn(participant);
+        },
+        linkToSourceByFqn: function(fqn) {
             if (!fqn) {
                 return;
             }
+            const url = this.dotToSlash(fqn);
             if (!this.getLinkBaseUrl()) {
                 return;
             }
@@ -719,7 +757,7 @@ var app = new Vue({
 
             if (this.getLinkType() == 'IntelliJ') {
                 $.ajax({
-                    url: this.getLinkBaseUrl() + fqn + '.java',
+                    url: this.getLinkBaseUrl() + url + '.java',
                     method: "GET",
                     async: false,
                     success: function(data) {
@@ -735,10 +773,8 @@ var app = new Vue({
                     }
                 })
             } else {
-                window.open(this.getLinkBaseUrl() + fqn + '.java', '_blank');
+                window.open(this.getLinkBaseUrl() + url + '.java', '_blank');
             }
-
-            return false;
         }
     }
 });

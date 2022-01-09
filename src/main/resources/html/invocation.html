@@ -60,11 +60,20 @@
                 const elementId = 'invocation-' + d3.select(this).text();
                 $('.invocation-row').removeClass('highlight');
                 $('#' + elementId).addClass('highlight');
+                showSequenceDetail(d);
             }).on('mouseover', function() {
                 d3.select(this).style('cursor', 'pointer');
             }).on('mouseout', function() {
                 d3.select(this).style('cursor', 'default');
             });
+        }
+
+        function showSequenceDetail(index) {
+            app.setCurrentInvocationsBySequenceIndex(index);
+
+            const sequenceDetailModal = new bootstrap.Modal(document.getElementById("sequenceDetailModal"), {});
+            const title = $('#sequenceDetailTitle');
+            sequenceDetailModal.show();
         }
 
         function makeEventLink() {
@@ -159,29 +168,93 @@
 </nav>
 <body>
 
-<!-- Modal -->
-<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailTitle" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventDetailTitle"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div id="app" class="container">
+
+    <!-- Sequence detail modal -->
+    <div class="modal fade" id="sequenceDetailModal" tabindex="-1" aria-labelledby="eventDetailTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div v-if="currentCallInvocation && currentCallInvocation.id" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sequenceDetailTitle">Call & Return</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tbody>
+                        <tr>
+                            <th>Id</th>
+                            <td>{{ currentCallInvocation.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>From</th>
+                            <td>
+                                {{ currentCallInvocation.from }}
+                                <a class="btn btn-primary" v-if="currentCallInvocation.from != 'Client' && currentCallInvocation.from != 'Handler'" v-bind:href="'javascript:app.linkToSourceByFqn(\'' + currentCallInvocation.from + '\');'">open</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>To</th>
+                            <td>
+                                {{ currentCallInvocation.to }}
+                                <a class="btn btn-primary" v-if="currentCallInvocation.to != 'Client' && currentCallInvocation.to != 'Handler'" v-bind:href="'javascript:app.linkToSourceByFqn(\'' + currentCallInvocation.to + '\');'">open</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Method</th>
+                            <td>{{ currentCallInvocation.method }}</td>
+                        </tr>
+                        <tr>
+                            <th>Argument types</th>
+                            <td>{{ currentCallInvocation.valueType }}</td>
+                        </tr>
+                        <tr>
+                            <th>Argument values</th>
+                            <td>{{ currentCallInvocation.value }}</td>
+                        </tr>
+                        <tr>
+                            <th>Return type</th>
+                            <td>{{ currentReturnInvocation.valueType }}</td>
+                        </tr>
+                        <tr>
+                            <th>Return value</th>
+                            <td>{{ currentReturnInvocation.value }}</td>
+                        </tr>
+                        <tr>
+                            <th>Duration</th>
+                            <td>{{ currentCallInvocation.duration }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <pre><code id="eventDetailContent" class="language-sql"></code></pre>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="copyEventDetailButton" type="button" class="btn btn-success" onclick="copyEventDetailToClipboard()">Copy</button>
-                <button id="formatSql" type="button" class="btn btn-primary" onclick="formatSql()">Format</button>
-                <button id="unformatSql" type="button" class="btn btn-primary" onclick="unformatSql()">Unformat</button>
-            </div>
-            <textarea id="clipboardContents" style="display: none"></textarea>
         </div>
     </div>
-</div>
 
-<div id="app" class="container">
+    <!-- Event detail modal -->
+    <div class="modal fade" id="eventDetailModal" tabindex="-1" aria-labelledby="eventDetailTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="eventDetailTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre><code id="eventDetailContent" class="language-sql"></code></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="copyEventDetailButton" type="button" class="btn btn-success" onclick="copyEventDetailToClipboard()">Copy</button>
+                    <button id="formatSql" type="button" class="btn btn-primary" onclick="formatSql()">Format</button>
+                    <button id="unformatSql" type="button" class="btn btn-primary" onclick="unformatSql()">Unformat</button>
+                </div>
+                <textarea id="clipboardContents" style="display: none"></textarea>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="mermaid">{{ mermaidSequence }}</div>
     </div>
